@@ -5,7 +5,6 @@ import AdminDashboard from "@/components/AdminDashboard";
 import TechnicianDashboard from "@/components/TechnicianDashboard";
 import LoginForm from "@/components/LoginForm";
 import RegisterForm from "@/components/RegisterForm";
-import UserDashboard from "@/components/UserDashboard";
 
 const Index = () => {
   const [appState, setAppState] = useState<AppState>({
