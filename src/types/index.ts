@@ -8,7 +8,7 @@ export interface Ticket {
   id: string;
   title: string;
   description: string;
-  status: "created" | "in_progress" | "completed";
+  status: "created" | "assigned" | "in_progress" | "resolved" | "closed";
   userId: string;
   userName: string;
   technicianId?: string;
