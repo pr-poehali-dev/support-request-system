@@ -8,6 +8,7 @@ export interface Ticket {
   id: string;
   title: string;
   description: string;
+  type: "ПО" | "Оборудование" | "Сеть";
   status: "created" | "assigned" | "in_progress" | "resolved" | "closed";
   userId: string;
   userName: string;

@@ -4,12 +4,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Header from "./Header";
 
 interface UserDashboardProps {
   user: User;
   tickets: Ticket[];
-  onCreateTicket: (title: string, description: string) => void;
+  onCreateTicket: (
+    title: string,
+    description: string,
+    type: "ПО" | "Оборудование" | "Сеть",
+  ) => void;
   onViewTicket: (ticketId: string) => void;
   onLogout: () => void;
 }
@@ -24,15 +35,17 @@ const UserDashboard = ({
   const [isCreating, setIsCreating] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [type, setType] = useState<"ПО" | "Оборудование" | "Сеть">("ПО");
 
   const userTickets = tickets.filter((ticket) => ticket.userId === user.id);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (title && description) {
-      onCreateTicket(title, description);
+    if (title && description && type) {
+      onCreateTicket(title, description, type);
       setTitle("");
       setDescription("");
+      setType("ПО");
       setIsCreating(false);
     }
   };
@@ -78,6 +91,21 @@ const UserDashboard = ({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
+                  <Select
+                    value={type}
+                    onValueChange={(value: "ПО" | "Оборудование" | "Сеть") =>
+                      setType(value)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Выберите тип заявки" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ПО">ПО</SelectItem>
+                      <SelectItem value="Оборудование">Оборудование</SelectItem>
+                      <SelectItem value="Сеть">Сеть</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <textarea
                     className="w-full p-3 border border-gray-300 rounded-md resize-none h-24"
                     placeholder="Описание проблемы"
