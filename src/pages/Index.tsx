@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { User, Ticket, AppState } from "@/types";
+import UserDashboard from "@/components/UserDashboard";
+import AdminDashboard from "@/components/AdminDashboard";
+import TechnicianDashboard from "@/components/TechnicianDashboard";
 import LoginForm from "@/components/LoginForm";
 import RegisterForm from "@/components/RegisterForm";
 import UserDashboard from "@/components/UserDashboard";
@@ -8,6 +11,11 @@ const Index = () => {
   const [appState, setAppState] = useState<AppState>({
     currentUser: null,
     tickets: [],
+    selectedTicketId: undefined,
+    technicians: [
+      { id: "tech1", username: "Техник Иван", role: "technician" },
+      { id: "tech2", username: "Техник Мария", role: "technician" },
+    ],
     isAuthenticated: false,
     currentView: "login",
   });
@@ -76,10 +84,37 @@ const Index = () => {
   const handleLogout = () => {
     setAppState({
       currentUser: null,
-      tickets: appState.tickets, // Сохраняем заявки
+      tickets: appState.tickets,
+      technicians: appState.technicians,
       isAuthenticated: false,
       currentView: "login",
     });
+  };
+
+  const handleAssignTechnician = (ticketId: string, technicianId: string) => {
+    const technician = appState.technicians.find((t) => t.id === technicianId);
+    setAppState((prev) => ({
+      ...prev,
+      tickets: prev.tickets.map((ticket) =>
+        ticket.id === ticketId
+          ? {
+              ...ticket,
+              technicianId,
+              technicianName: technician?.username,
+              status: "assigned" as const,
+            }
+          : ticket,
+      ),
+    }));
+  };
+
+  const handleUpdateStatus = (ticketId: string, status: Ticket["status"]) => {
+    setAppState((prev) => ({
+      ...prev,
+      tickets: prev.tickets.map((ticket) =>
+        ticket.id === ticketId ? { ...ticket, status } : ticket,
+      ),
+    }));
   };
 
   const switchToRegister = () => {
@@ -106,34 +141,41 @@ const Index = () => {
     );
   }
 
-  if (appState.currentUser?.role === "user") {
+  if (appState.currentUser?.role === "admin") {
     return (
-      <UserDashboard
+      <AdminDashboard
         user={appState.currentUser}
         tickets={appState.tickets}
-        onCreateTicket={handleCreateTicket}
+        technicians={appState.technicians}
+        onAssignTechnician={handleAssignTechnician}
+        onUpdateStatus={handleUpdateStatus}
         onViewTicket={handleViewTicket}
         onLogout={handleLogout}
       />
     );
   }
 
-  // Placeholder for other roles
+  if (appState.currentUser?.role === "technician") {
+    return (
+      <TechnicianDashboard
+        user={appState.currentUser}
+        tickets={appState.tickets}
+        onUpdateStatus={handleUpdateStatus}
+        onViewTicket={handleViewTicket}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
+  // User role
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold mb-4">
-          Панель {appState.currentUser?.role}
-        </h1>
-        <p className="text-gray-600 mb-4">В разработке...</p>
-        <button
-          onClick={handleLogout}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Выйти
-        </button>
-      </div>
-    </div>
+    <UserDashboard
+      user={appState.currentUser!}
+      tickets={appState.tickets}
+      onCreateTicket={handleCreateTicket}
+      onViewTicket={handleViewTicket}
+      onLogout={handleLogout}
+    />
   );
 };
 
